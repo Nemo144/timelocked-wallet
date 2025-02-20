@@ -33,7 +33,23 @@
      (var-set unlock-height unlock-at)
      (ok true)
      ))
-;;
+
+
+     (define-public (bestow (new-beneficiary principal))
+    (begin
+        (asserts! (is-eq (some tx-sender) (var-get beneficiary)) err-beneficiary-only)
+        (var-set beneficiary (some new-beneficiary))
+        (ok true)
+    )
+    )
+
+    (define-public (claim)
+    (begin
+        (asserts! (is-eq (some tx-sender) (var-get beneficiary)) err-beneficiary-only)
+        (asserts! (>= block-height (var-get unlock-height)) err-unlock-height-not-reached)
+        (as-contract (stx-transfer? (stx-get-balance tx-sender) tx-sender (unwrap-panic (var-get beneficiary))))
+    )
+)
 
 ;; read only functions
 ;;
